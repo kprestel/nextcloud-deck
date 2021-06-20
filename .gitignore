@@ -1,0 +1,4 @@
+.idea
+test/data
+test/config
+test/.pytest_cache

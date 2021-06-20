@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "nextcloud-deck"
+version = "0.1.0"
+description = ""
+authors = ["Kyle Prestel <kprestel@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+requests = "^2.25.1"
+attrs = "^21.2.0"
+cattrs = "^1.7.1"
+dateutils = "^0.6.12"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.4"
+black = "^21.6b0"
+mypy = "^0.902"
+isort = "^5.8.0"
+tox = "^3.23.1"
+tox-poetry = "^0.4.0"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
