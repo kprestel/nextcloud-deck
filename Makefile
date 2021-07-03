@@ -33,3 +33,11 @@ create-volumes:
 
 build-test-image:
 	docker build -t nextcloud-test .
+
+build:
+	poetry build
+
+deploy: build
+	poetry publish
+
+publish: deploy

@@ -1,9 +1,12 @@
 [tool.poetry]
 name = "nextcloud-deck"
 version = "0.1.0"
-description = ""
+description = "Python wrapper around Nextcloud Deck API"
 authors = ["Kyle Prestel <kprestel@gmail.com>"]
 license = "MIT"
+packages = [
+    { include = 'deck' }
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
