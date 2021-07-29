@@ -9,7 +9,7 @@ from deck.models import Board, Card, Stack
 @pytest.fixture(scope="session")
 def nc() -> NextCloudDeckAPI:
     return NextCloudDeckAPI(
-        "https://localhost:443", HTTPBasicAuth("kp", "asdf"), ssl_verify=False
+        "https://localhost:443", HTTPBasicAuth("Admin", "admin"), ssl_verify=False
     )
 
 
@@ -113,6 +113,5 @@ def test_create_label(board: Board, nc: NextCloudDeckAPI, stack: Stack, card: Ca
 
 def test_get_cards_from_stack(board, stack, card, nc: NextCloudDeckAPI):
     cards = nc.get_cards_from_stack(board_id=board.id, stack_id=stack.id)
-
     assert len(cards) == 1
     assert cards[0] == card
