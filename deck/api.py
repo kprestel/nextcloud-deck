@@ -8,6 +8,9 @@ from deck.models import Board, Card, Label, Stack, deserialize
 logger = logging.getLogger(__name__)
 
 
+IdType = typing.Union[int, str]
+
+
 class NextCloudDeckAPI:
     """docstring for NextCloudDeck."""
 
