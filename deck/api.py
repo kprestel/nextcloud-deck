@@ -42,11 +42,70 @@ class NextCloudDeckAPI:
         return response.json()
 
     @deserialize(Board)
+    def create_board(self, title, color="ff0000") -> Board:
+        logger.info(f"Creating board with title: {title} and color: {color}")
+        response = self.session.post(
+            f"{self.url}", json={"title": title, "color": color}
+        )
+        return response.json()
+
+    @deserialize(Board)
     def get_board(self, board_id) -> Board:
         response = self.session.get(
             f"{self.url}/{board_id}",
         )
         return response.json()
+
+    def update_board(
+            self, board_id: IdType, title: str, color: str, archived: bool
+    ) -> typing.Dict[str, typing.Any]:
+        response = self.session.put(
+            f"{self.url}/boards/{board_id}",
+            json={"title": title, "color": color, "archived": archived}
+        )
+        return response.json()
+
+    def delete_board(self, board_id):
+        logger.info(f"Deleting board with ID: {board_id}")
+        response = self.session.delete(f"{self.url}/{board_id}")
+        logger.debug(response)
+        return response.json()
+
+    def undo_delete_board(self, board_id: IdType) -> typing.Dict[str, typing.Any]:
+        response = self.session.post(f"{self.url}/boards/{board_id}/undo_delete")
+        return response.json()
+
+    def add_board_acl_rule(self, board_id: IdType, type: int, participant: str, perm_edit: bool, perm_share: bool, perm_manage: bool):
+        response = self.session.post(
+            f"{self.url}/boards/{board_id}/acl",
+            json={
+                "type": type,
+                "participant": participant,
+                "permissionEdit": perm_edit,
+                "permissionShare": perm_share,
+                "permissionManage": perm_manage
+            }
+        )
+        return response.json()  # TODO: Deserialization to model for ACL rule
+
+    def update_board_acl_rule(self, board_id: IdType, acl_id: IdType, perm_edit: bool, perm_share: bool, perm_manage: bool) -> typing.Dict[str, typing.Any]:
+        response = self.session.put(
+            f"{self.url}/boards/{board_id}/acl/{acl_id}",
+            json={
+                "permissionEdit": perm_edit,
+                "permissionShare": perm_share,
+                "permissionManage": perm_manage
+            }
+        )
+        return response.json()
+
+    def delete_board_acl_rule(self, board_id: IdType, acl_id: IdType) -> typing.Dict[str, typing.Any]:
+        response = self.session.delete(
+            f"{self.url}/boards/{board_id}/acl/{acl_id}"
+        )
+        return response.json()
+
+    # Stacks
 
     @deserialize(typing.List[Stack])
     def get_stacks(self, board_id):
@@ -55,27 +114,17 @@ class NextCloudDeckAPI:
         )
         return response.json()
 
-    @deserialize(typing.List[Card])
-    def get_cards_from_stack(self, board_id, stack_id):
+    @deserialize(typing.List[Stack])
+    def get_archived_stacks(self, board_id: IdType) -> typing.Dict[str, typing.Any]:
         response = self.session.get(
-            f"{self.url}/{board_id}/stacks/{stack_id}",
-        )
-        if "cards" in response.json():
-            return response.json()["cards"]
-        return []
-
-    @deserialize(Card)
-    def get_card(self, board_id, stack_id, card_id):
-        response = self.session.get(
-            f"{self.url}/{board_id}/stacks/{stack_id}/cards/{card_id}",
+            f"{self.url}/{board_id}/stacks/archived"
         )
         return response.json()
 
-    @deserialize(Label)
-    def create_label(self, board_id, title, color="ff0000"):
-        response = self.session.post(
-            f"{self.url}/{board_id}/labels",
-            json={"title": title, "color": color},
+    @deserialize(Stack)
+    def get_stack(self, board_id: IdType, stack_id: IdType):
+        response = self.session.get(
+            f"{self.url}/{board_id}/stacks/{stack_id}"
         )
         return response.json()
 
@@ -87,9 +136,34 @@ class NextCloudDeckAPI:
         )
         return response.json()
 
+    def update_stack(self, board_id: IdType, stack_id: IdType, title: str, order: int):
+        response = self.session.put(
+            f"{self.url}/{board_id}/stacks/{stack_id}",
+            json={"title": title, "order": order},
+        )
+        return response.json()
+
     @deserialize(Stack)
     def delete_stack(self, board_id, stack_id):
         response = self.session.delete(f"{self.url}/{board_id}/stacks/{stack_id}")
+        return response.json()
+
+    @deserialize(typing.List[Card])
+    def get_cards_from_stack(self, board_id, stack_id):
+        response = self.session.get(
+            f"{self.url}/{board_id}/stacks/{stack_id}",
+        )
+        if "cards" in response.json():
+            return response.json()["cards"]
+        return []
+
+    # Cards
+
+    @deserialize(Card)
+    def get_card(self, board_id, stack_id, card_id):
+        response = self.session.get(
+            f"{self.url}/{board_id}/stacks/{stack_id}/cards/{card_id}",
+        )
         return response.json()
 
     @deserialize(Card)
@@ -144,12 +218,7 @@ class NextCloudDeckAPI:
         response = self.session.delete(
             f"{self.url}/{board_id}/stacks/{stack_id}/cards/{card_id}"
         )
-
         return response.json()
-
-    def get_labels(self, board_id):
-        boards = self.get_board(board_id)
-        return boards.labels
 
     def remove_label_from_card(self, board_id, stack_id, card_id, label_id):
         logger.info(
@@ -161,10 +230,6 @@ class NextCloudDeckAPI:
         )
         return response.json()
 
-    def delete_label(self, board_id, label_id):
-        response = self.session.delete(f"{self.url}/{board_id}/labels/{label_id}")
-        return response.json()
-
     def assign_label_to_card(
         self, board_id, stack_id, card_id, label_id
     ) -> typing.Dict[str, typing.Any]:
@@ -174,16 +239,61 @@ class NextCloudDeckAPI:
         )
         return response.json()
 
-    @deserialize(Board)
-    def create_board(self, title, color="ff0000") -> Board:
-        logger.info(f"Creating board with title: {title} and color: {color}")
-        response = self.session.post(
-            f"{self.url}", json={"title": title, "color": color}
+    def assign_user_to_card(
+            self, board_id, stack_id, card_id, user_id
+    ) -> typing.Dict[str, typing.Any]:
+        response = self.session.put(
+            f"{self.url}/{board_id}/stacks/{stack_id}/cards/{card_id}/assignUser",
+            json={"userId": user_id}
         )
         return response.json()
 
-    def delete_board(self, board_id):
-        logger.info(f"Deleting board with ID: {board_id}")
-        response = self.session.delete(f"{self.url}/{board_id}")
-        logger.debug(response)
+    def unassign_user_from_card(
+            self, board_id, stack_id, card_id, user_id
+    ) -> typing.Dict[str, typing.Any]:
+        response = self.session.put(
+            f"{self.url}/{board_id}/stacks/{stack_id}/cards/{card_id}/unassignUser",
+            json={"userId": user_id}
+        )
         return response.json()
+
+    def reorder_card(
+            self, board_id, stack_id, card_id, order, stack_target
+    ) -> typing.Dict[str, typing.Any]:
+        response = self.session.put(
+            f"{self.url}/{board_id}/stacks/{stack_id}/cards/{card_id}/reorder",
+            json={"order": order, "stackId": stack_target}
+        )
+        return response.json()
+
+    # Labels
+
+    @deserialize(Label)
+    def get_label(self, board_id: IdType, label_id: IdType) -> typing.Dict[str, typing.Any]:
+        response = self.session.get(f"{self.url}/{board_id}/labels/{label_id}")
+        return response.json()
+
+    @deserialize(Label)
+    def create_label(self, board_id, title, color="ff0000"):
+        response = self.session.post(
+            f"{self.url}/{board_id}/labels",
+            json={"title": title, "color": color},
+        )
+        return response.json()
+
+    def update_label(
+            self, board_id: IdType, label_id: IdType, title: str, color: str
+    ) -> typing.Dict[str, typing.Any]:
+        response = self.session.put(
+            f"{self.url}/{board_id}/labels/{label_id}",
+            json={"title": title, "color": color}
+        )
+        return response.json()
+
+    def delete_label(self, board_id: IdType, label_id: IdType) -> typing.Dict[str, typing.Any]:
+        response = self.session.delete(f"{self.url}/{board_id}/labels/{label_id}")
+        return response.json()
+
+    def get_board_labels(self, board_id: IdType):
+        boards = self.get_board(board_id)
+        return boards.labels
