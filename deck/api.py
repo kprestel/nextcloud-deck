@@ -163,7 +163,7 @@ class NextCloudDeckAPI:
         return response.json()
 
     def assign_label_to_card(
-        self, label_id, card_id, board_id, stack_id
+        self, board_id, stack_id, card_id, label_id
     ) -> typing.Dict[str, typing.Any]:
         response = self.session.put(
             f"{self.url}/{board_id}/stacks/{stack_id}/cards/{card_id}/assignLabel",
