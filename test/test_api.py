@@ -82,7 +82,7 @@ def test_create_card(nc: NextCloudDeckAPI, board, stack):
 
 def test_create_label(board: Board, nc: NextCloudDeckAPI, stack: Stack, card: Card):
     label = nc.create_label(board_id=board.id, title="Test label")
-    labels = nc.get_labels(board_id=board.id)
+    labels = nc.get_board_labels(board_id=board.id)
     for l in labels:
         if l.id == label.id:
             assert l == label
