@@ -46,3 +46,6 @@ publish: deploy
 
 start-nextcloud-test-instance:
 	./bin/start-nextcloud.sh
+
+install-deck:
+	docker exec --user www-data nextcloud php occ app:install deck

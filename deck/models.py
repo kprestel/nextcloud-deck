@@ -16,7 +16,7 @@ T = typing.TypeVar("T")
 
 
 def to_snake(s):
-    return re.sub("([A-Z]\w+$)", "_\\1", s).lower()
+    return re.sub(r"([A-Z]\w+$)", "_\\1", s).lower()
 
 
 def json_to_snake(d):

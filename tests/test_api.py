@@ -125,7 +125,7 @@ def test_get_cards_from_stack(board, stack, card, nc: NextCloudDeckAPI):
 
 def test_reorder_card(board, stack, stack2, card, nc: NextCloudDeckAPI):
     assert card.stack_id == stack.id
-    nc.reorder_card(board.id, stack.id, card.id, card.order-1, stack2.id)
+    nc.reorder_card(board.id, stack.id, card.id, card.order - 1, stack2.id)
     cards1 = nc.get_cards_from_stack(board.id, stack.id)
     cards2 = nc.get_cards_from_stack(board.id, stack2.id)
     assert len(cards1) == 0
