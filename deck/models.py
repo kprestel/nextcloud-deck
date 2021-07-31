@@ -5,7 +5,6 @@ import typing
 
 import attr
 import cattr
-import dateutil
 from cattr.preconf.json import make_converter
 from dateutil.parser import parse
 
@@ -30,10 +29,10 @@ def json_to_snake(d):
     }
 
 
-def deserialize(model: typing.Generic[T]) -> T:
+def deserialize(model: typing.Generic[T]) -> typing.Callable:
     def outer(fn):
         @functools.wraps(fn)
-        def inner(*args, **kwargs):
+        def inner(*args, **kwargs) -> T:
             json_ = fn(*args, **kwargs)
             json_ = json_to_snake(json_)
             return cattr.structure(json_, model)
@@ -71,8 +70,8 @@ class Card:
     archived: bool
     notified: bool = False
     deleted_at: int = 0
-    duedate: str = None
-    description: str = None
+    duedate: typing.Optional[str] = None
+    description: typing.Optional[str] = None
     type: str = "plain"
     labels: typing.Optional[typing.List[Label]] = attr.Factory(list)
 
