@@ -1,4 +1,3 @@
-import cattr
 import pytest
 from requests.auth import HTTPBasicAuth
 
@@ -9,7 +8,7 @@ from deck.models import Board, Card, Stack
 @pytest.fixture(scope="session")
 def nc() -> NextCloudDeckAPI:
     return NextCloudDeckAPI(
-        "https://localhost:443", HTTPBasicAuth("kp", "asdf"), ssl_verify=False
+        "https://localhost:443", HTTPBasicAuth("Admin", "admin"), ssl_verify=False
     )
 
 
@@ -23,6 +22,13 @@ def board(nc) -> Board:
 @pytest.fixture()
 def stack(nc, board: Board):
     s = nc.create_stack(board.id, "test stack")
+    yield s
+    nc.delete_stack(board_id=board.id, stack_id=s.id)
+
+
+@pytest.fixture()
+def stack2(nc, board: Board):
+    s = nc.create_stack(board.id, "test stack 2")
     yield s
     nc.delete_stack(board_id=board.id, stack_id=s.id)
 
@@ -82,7 +88,7 @@ def test_create_card(nc: NextCloudDeckAPI, board, stack):
 
 def test_create_label(board: Board, nc: NextCloudDeckAPI, stack: Stack, card: Card):
     label = nc.create_label(board_id=board.id, title="Test label")
-    labels = nc.get_labels(board_id=board.id)
+    labels = nc.get_board_labels(board_id=board.id)
     for l in labels:
         if l.id == label.id:
             assert l == label
@@ -113,6 +119,18 @@ def test_create_label(board: Board, nc: NextCloudDeckAPI, stack: Stack, card: Ca
 
 def test_get_cards_from_stack(board, stack, card, nc: NextCloudDeckAPI):
     cards = nc.get_cards_from_stack(board_id=board.id, stack_id=stack.id)
-
     assert len(cards) == 1
     assert cards[0] == card
+
+
+def test_reorder_card(board, stack, stack2, card, nc: NextCloudDeckAPI):
+    assert card.stack_id == stack.id
+    nc.reorder_card(board.id, stack.id, card.id, card.order-1, stack2.id)
+    cards1 = nc.get_cards_from_stack(board.id, stack.id)
+    cards2 = nc.get_cards_from_stack(board.id, stack2.id)
+    assert len(cards1) == 0
+    assert len(cards2) == 1
+    card_moved = nc.get_card(board.id, stack2.id, card.id)
+    assert card.title == card_moved.title
+    assert card.stack_id != card_moved.stack_id
+    assert card_moved.stack_id == stack2.id

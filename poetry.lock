@@ -434,9 +434,9 @@ docs = ["proselint (>=0.10.2)", "sphinx (>=3)", "sphinx-argparse (>=0.2.5)", "sp
 testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", "pytest (>=4)", "pytest-env (>=0.6.2)", "pytest-freezegun (>=0.4.1)", "pytest-mock (>=2)", "pytest-randomly (>=1)", "pytest-timeout (>=1)", "packaging (>=20.0)", "xonsh (>=0.9.16)"]
 
 [metadata]
-lock-version = "1.1"
-python-versions = "^3.9"
-content-hash = "4bad417f25c0fb586e34659e9ff5aa7eb1e079365dfb251b861a9595f6f2eab7"
+content-hash = "d7061a714fbdc1ec52f765b2818605719206466c4bc867ba31fc805250b4a97e"
+lock-version = "1.0"
+python-versions = "^3.8"
 
 [metadata.files]
 appdirs = [
