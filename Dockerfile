@@ -1,3 +1,3 @@
 FROM ghcr.io/linuxserver/nextcloud
-COPY test/data /data
-COPY test/config /config
+COPY tests/data /data
+COPY tests/config /config

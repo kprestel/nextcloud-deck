@@ -1,5 +1,5 @@
 .PHONY: clean-pyc test clean-build
-TEST_PATH=tests
+TEST_PATH=test
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm --force {} +
@@ -20,12 +20,12 @@ isort:
 lint:
 	flake8 --exclude=.tox
 
-test: clean-pyc
+test: clean-pyc build-test start-nextcloud-test-instance
 	tox
 
 black:
 	black deck/
-	black test/
+	black tests/
 
 create-volumes:
 	docker volume create nextcloud-data
@@ -34,6 +34,8 @@ create-volumes:
 build-test-image:
 	docker build -t nextcloud-test .
 
+build-test: create-volumes build-test-image
+
 build:
 	poetry build
 
@@ -41,3 +43,9 @@ deploy: build
 	poetry publish
 
 publish: deploy
+
+start-nextcloud-test-instance:
+	./bin/start-nextcloud.sh
+
+install-deck:
+	docker exec --user www-data nextcloud php occ app:install deck
